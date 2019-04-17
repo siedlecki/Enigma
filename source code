@@ -1,0 +1,378 @@
+package enigma;
+
+import static java.lang.Math.abs;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+/**
+ *
+ * @author Siedlec
+ */
+
+public class Enigma {   
+  
+   //metoda która zapisuje dane tablicy do list. 
+   public static void wypList(char s[], List<Character> a){
+       for(int i=0; i<s.length;i++){
+        a.add(s[i]);
+        }   
+   }
+   
+   //metoda która zwraca wartość przesunięcia indexu na podstawie kluczy i indeksu litery słowa
+   public static int getIndex(List<Character> a,char split[],char split2[],int pozlitslowa,int poz1klucza, int poz2klucza){
+    List<Character> alfabet = new ArrayList<Character>();
+    char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+    wypList(alphabet,alfabet); int index = 0;
+    
+        if (poz1klucza == poz2klucza){  //liczy przesunięcie dla wejścia
+            index=a.indexOf(split[pozlitslowa])+alfabet.indexOf(split2[poz1klucza]);
+        }else if(poz1klucza == 999){    //liczy przesunięcie dla wyjścia
+            index=a.indexOf(split[pozlitslowa])-alfabet.indexOf(split2[poz2klucza]);
+        }else 
+            index=a.indexOf(split[pozlitslowa])+(alfabet.indexOf(split2[poz1klucza])-alfabet.indexOf(split2[poz2klucza]));
+        
+        if(index >25) index=abs(25-index)-1;
+        if(index <0) index=(25+index)+1;
+        
+   return index;}
+   
+   //Zwraca zawartość tablic jako String
+   public static String wypTab(char s[]){
+       String wynik=""; 
+       for(int i=0;i<s.length;i++){
+                        wynik=wynik+s[i];
+                        }    
+       return wynik;}
+   
+   //Rotacja Klucza
+   public static void RotKlu(int i,char split2[]){
+    List<Character> alfabet = new ArrayList<Character>();
+    char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+    wypList(alphabet,alfabet); int index = 0;
+    
+                            index=(alfabet.indexOf(split2[i])+1);
+                            if(index >25) index=abs(25-index)-1;
+                            if(index <0) index=(25+index)+1;
+                            split2[i]=alfabet.get(index);
+   }
+   
+   public static void RotKlu2(int poz[],char split2[],int a){
+    List<Character> alfabet = new ArrayList<Character>();
+    char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+    wypList(alphabet,alfabet);
+    
+        switch (poz[(a-1)]) {
+            case 1:
+                if(split2[a-1]==alfabet.get(17)){RotKlu(a,split2);}
+                break;
+            case 2:
+                if(split2[a-1]==alfabet.get(5)){RotKlu(a,split2);}
+                break;
+            case 3:
+                if(split2[a-1]==alfabet.get(22)){RotKlu(a,split2);}
+                break;         
+            case 4: 
+                if(split2[a-1]==alfabet.get(10)){RotKlu(a,split2);}
+                break;
+            case 5:
+                if(split2[a-1]==alfabet.get(0)){RotKlu(a,split2);}
+                break;              
+            default:
+                break;
+        }
+   }
+   
+   //Szyfrowanie Enigma
+   public static void EncEni(char split[], char split2[], int poz[]){
+       
+        List<Character> alfabet = new ArrayList<Character>();
+        char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+        wypList(alphabet,alfabet);
+    
+        List<Character> rotorI = new ArrayList<Character>();
+        char[] rotoI = "ekmflgdqvzntowyhxuspaibrcj".toCharArray();
+        wypList(rotoI,rotorI);
+        
+        List<Character> rotorII = new ArrayList<Character>();
+        char[] rotoII = "ajdksiruxblhwtmcqgznpyfvoe".toCharArray();
+        wypList(rotoII,rotorII);
+        
+        List<Character> rotorIII = new ArrayList<Character>();
+        char[] rotoIII = "bdfhjlcprtxvznyeiwgakmusqo".toCharArray();
+        wypList(rotoIII,rotorIII);
+        
+        List<Character> rotorIV = new ArrayList<Character>();
+        char[] rotoIV = "esovpzjayquirhxlnftgkdcmwb".toCharArray();
+        wypList(rotoIV,rotorIV);
+        
+        List<Character> rotorV = new ArrayList<Character>();
+        char[] rotoV = "vzbrgityupsdnhlxawmjqofeck".toCharArray();
+        wypList(rotoV,rotorV);
+        
+        List<Character> reflector = new ArrayList<Character>();
+        char[] ref = "yruhqsldpxngokmiebfzcwvjat".toCharArray();
+        wypList(ref,reflector);
+       
+        List<List<Character>> rotory = new ArrayList<List<Character>>();
+        rotory.add(rotorI); rotory.add(rotorII); rotory.add(rotorIII);
+        rotory.add(rotorIV); rotory.add(rotorV); 
+        
+     for(int i=0; i<split.length;i++){
+                       //rotacja klucza 
+                        for( int s=0; s<split2.length;s++){  
+     
+                        RotKlu(0,split2);
+                           switch(split2.length){
+                            case 2: RotKlu2(poz,split2,1); break;
+                            case 3: RotKlu2(poz,split2,1); RotKlu2(poz,split2,2); break;
+                            case 4: RotKlu2(poz,split2,1); RotKlu2(poz,split2,2); RotKlu2(poz,split2,3); break;
+                            case 5: RotKlu2(poz,split2,1); RotKlu2(poz,split2,2); RotKlu2(poz,split2,3);
+                                    RotKlu2(poz,split2,4); break;
+                            default: break;
+                                                }break;
+                                                          }
+                        
+                      //Wejście
+                        split[i]=rotory.get(poz[0]-1).get(getIndex(alfabet,split,split2,i,0,0));
+                        
+                        switch(split2.length){
+                        case 1: 
+                            split[i]=reflector.get(getIndex(alfabet,split,split2,i,999,0));
+                            split[i]=alfabet.get(rotory.get(poz[0]-1).indexOf(reflector.get(getIndex(reflector,split,split2,i,0,0))));
+                          break;
+                            
+                        case 2: 
+                            split[i]=rotory.get(poz[1]-1).get(getIndex(alfabet,split,split2,i,1,0));
+                            split[i]=reflector.get(getIndex(alfabet,split,split2,i,999,1));
+                            split[i]=alfabet.get(rotory.get(poz[1]-1).indexOf(reflector.get(getIndex(reflector,split,split2,i,1,1))));
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[1]-1),split,split2,i,0,1));
+                            break;
+                            
+                        case 3: 
+                            //I roto
+                            split[i]=rotory.get(poz[1]-1).get(getIndex(alfabet,split,split2,i,1,0));
+                        
+                            //II rotor
+                            split[i]=rotory.get(poz[2]-1).get(getIndex(alfabet,split,split2,i,2,1));
+                        
+                            //III rotor
+                            split[i]=reflector.get(getIndex(alfabet,split,split2,i,999,2));
+                         
+                            //REF
+                            split[i]=alfabet.get(rotory.get(poz[2]-1).indexOf(reflector.get(getIndex(reflector,split,split2,i,2,2)))); 
+                        
+                            //III rotor
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[2]-1),split,split2,i,1,2));
+                            //II 
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[1]-1),split,split2,i,0,1));
+                            break;
+                            
+                        case 4: 
+                            split[i]=rotory.get(poz[1]-1).get(getIndex(alfabet,split,split2,i,1,0));
+                            split[i]=rotory.get(poz[2]-1).get(getIndex(alfabet,split,split2,i,2,1));
+                            split[i]=rotory.get(poz[3]-1).get(getIndex(alfabet,split,split2,i,3,2));
+                            split[i]=reflector.get(getIndex(alfabet,split,split2,i,999,3));
+                            split[i]=alfabet.get(rotory.get(poz[3]-1).indexOf(reflector.get(getIndex(reflector,split,split2,i,3,3)))); 
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[3]-1),split,split2,i,2,3));
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[2]-1),split,split2,i,1,2));
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[1]-1),split,split2,i,0,1));
+                            break;
+                            
+                        case 5: 
+                            split[i]=rotory.get(poz[1]-1).get(getIndex(alfabet,split,split2,i,1,0));
+                            split[i]=rotory.get(poz[2]-1).get(getIndex(alfabet,split,split2,i,2,1));
+                            split[i]=rotory.get(poz[3]-1).get(getIndex(alfabet,split,split2,i,3,2));
+                            split[i]=rotory.get(poz[4]-1).get(getIndex(alfabet,split,split2,i,4,3));
+                            split[i]=reflector.get(getIndex(alfabet,split,split2,i,999,4));
+                            split[i]=alfabet.get(rotory.get(poz[4]-1).indexOf(reflector.get(getIndex(reflector,split,split2,i,4,4)))); 
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[4]-1),split,split2,i,3,4));
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[3]-1),split,split2,i,2,3));
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[2]-1),split,split2,i,1,2));
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[1]-1),split,split2,i,0,1));
+                            break;
+                            
+                        default: break;
+                                             }
+                       //Wyjście 
+                       split[i]=alfabet.get(getIndex(rotory.get(poz[0]-1),split,split2,i,999,0));
+
+                        }
+   }
+   
+   //Deszyforwanie Enigma
+   public static void DecEni(char split[], char split2[], int poz[]){
+       
+        List<Character> alfabet = new ArrayList<Character>();
+        char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+        wypList(alphabet,alfabet);
+    
+        List<Character> rotorI = new ArrayList<Character>();
+        char[] rotoI = "ekmflgdqvzntowyhxuspaibrcj".toCharArray();
+        wypList(rotoI,rotorI);
+        
+        List<Character> rotorII = new ArrayList<Character>();
+        char[] rotoII = "ajdksiruxblhwtmcqgznpyfvoe".toCharArray();
+        wypList(rotoII,rotorII);
+        
+        List<Character> rotorIII = new ArrayList<Character>();
+        char[] rotoIII = "bdfhjlcprtxvznyeiwgakmusqo".toCharArray();
+        wypList(rotoIII,rotorIII);
+        
+        List<Character> rotorIV = new ArrayList<Character>();
+        char[] rotoIV = "esovpzjayquirhxlnftgkdcmwb".toCharArray();
+        wypList(rotoIV,rotorIV);
+        
+        List<Character> rotorV = new ArrayList<Character>();
+        char[] rotoV = "vzbrgityupsdnhlxawmjqofeck".toCharArray();
+        wypList(rotoV,rotorV);
+        
+        List<Character> reflector = new ArrayList<Character>();
+        char[] ref = "yruhqsldpxngokmiebfzcwvjat".toCharArray();
+        wypList(ref,reflector);
+       
+        List<List<Character>> rotory = new ArrayList<List<Character>>();
+        rotory.add(rotorI); rotory.add(rotorII); rotory.add(rotorIII);
+        rotory.add(rotorIV); rotory.add(rotorV); 
+        
+     for(int i=0; i<split.length;i++){
+                       //rotacja klucza 
+                        for( int s=0; s<split2.length;s++){  
+     
+                        RotKlu(0,split2);
+                           switch(split2.length){
+                            case 2: RotKlu2(poz,split2,1); break;
+                            case 3: RotKlu2(poz,split2,1); RotKlu2(poz,split2,2); break;
+                            case 4: RotKlu2(poz,split2,1); RotKlu2(poz,split2,2); RotKlu2(poz,split2,3); break;
+                            case 5: RotKlu2(poz,split2,1); RotKlu2(poz,split2,2); RotKlu2(poz,split2,3);
+                                    RotKlu2(poz,split2,4); break;
+                            default: break;
+                                                }break;
+                                                          }
+                        
+                      //Wejście
+                        split[i]=rotory.get(poz[0]-1).get(getIndex(alfabet,split,split2,i,0,0));
+                       
+                        switch(split2.length){
+                        case 1: 
+                            split[i]=reflector.get(getIndex(alfabet,split,split2,i,999,0));
+                            split[i]=alfabet.get(reflector.indexOf(rotory.get(poz[0]-1).get(getIndex(reflector,split,split2,i,0,0))));
+                          break;
+                            
+                        case 2: 
+                            split[i]=rotory.get(poz[1]-1).get(getIndex(alfabet,split,split2,i,1,0));
+                            split[i]=reflector.get(getIndex(alfabet,split,split2,i,999,1));
+                            split[i]=alfabet.get(reflector.indexOf(rotory.get(poz[1]-1).get(getIndex(reflector,split,split2,i,1,1))));
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[1]-1),split,split2,i,0,1));
+                            break;
+                            
+                        case 3: 
+                            //I roto
+                            split[i]=rotory.get(poz[1]-1).get(getIndex(alfabet,split,split2,i,1,0));
+                        
+                            //II rotor
+                            split[i]=rotory.get(poz[2]-1).get(getIndex(alfabet,split,split2,i,2,1));
+                        
+                            //III rotor
+                            split[i]=reflector.get(getIndex(alfabet,split,split2,i,999,2));
+                         
+                            //REF
+                            split[i]=alfabet.get(reflector.indexOf(rotory.get(poz[2]-1).get(getIndex(reflector,split,split2,i,2,2))));
+                        
+                            //III rotor
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[2]-1),split,split2,i,1,2));
+                            //II 
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[1]-1),split,split2,i,0,1));
+                            break;
+                            
+                        case 4: 
+                            split[i]=rotory.get(poz[1]-1).get(getIndex(alfabet,split,split2,i,1,0));
+                            split[i]=rotory.get(poz[2]-1).get(getIndex(alfabet,split,split2,i,2,1));
+                            split[i]=rotory.get(poz[3]-1).get(getIndex(alfabet,split,split2,i,3,2));
+                            split[i]=reflector.get(getIndex(alfabet,split,split2,i,999,3));
+                            split[i]=alfabet.get(reflector.indexOf(rotory.get(poz[3]-1).get(getIndex(reflector,split,split2,i,3,3))));
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[3]-1),split,split2,i,2,3));
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[2]-1),split,split2,i,1,2));
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[1]-1),split,split2,i,0,1));
+                            break;
+                            
+                        case 5: 
+                            split[i]=rotory.get(poz[1]-1).get(getIndex(alfabet,split,split2,i,1,0));
+                            split[i]=rotory.get(poz[2]-1).get(getIndex(alfabet,split,split2,i,2,1));
+                            split[i]=rotory.get(poz[3]-1).get(getIndex(alfabet,split,split2,i,3,2));
+                            split[i]=rotory.get(poz[4]-1).get(getIndex(alfabet,split,split2,i,4,3));
+                            split[i]=reflector.get(getIndex(alfabet,split,split2,i,999,4));
+                            split[i]=alfabet.get(reflector.indexOf(rotory.get(poz[4]-1).get(getIndex(reflector,split,split2,i,4,4))));
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[4]-1),split,split2,i,3,4));
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[3]-1),split,split2,i,2,3));
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[2]-1),split,split2,i,1,2));
+                            split[i]=alfabet.get(getIndex(rotory.get(poz[1]-1),split,split2,i,0,1));
+                            break;
+                            
+                        default: break;
+                                             }
+                       //Wyjście 
+                       split[i]=alfabet.get(getIndex(rotory.get(poz[0]-1),split,split2,i,999,0));
+
+                        }
+   }
+
+    public static void main(String[] args) {
+
+        //Proste menu tekstowe
+        Scanner sc = new Scanner(System.in);
+            int option,n; String word,key; char [] split,split2;
+        do{
+        System.out.println("Podaj opcje:");
+        System.out.println("1. Szyfrowanie\n2. Deszyforwanie\n3. Exit");
+        option=sc.nextInt();
+            switch(option){
+                
+                case 1: //szyfrowanie
+                    System.out.println("Podaj słowo:\033[31m");
+                        word=sc.next();
+                    System.out.print("\033[0m");
+                        split=word.toCharArray();
+                    System.out.println("Podaj ilość rotorów:\033[31m");
+                        n=sc.nextInt();
+                    System.out.print("\033[0m");
+                    System.out.println("Podaj klucz:\033[31m");
+                        key=sc.next();
+                    System.out.print("\033[0m");
+                        split2=key.toCharArray();        
+                    int []poz= new int[n];
+                    for(int i=0; i<n; i++){
+                        System.out.print("Podaj "+(i+1)+" rotor:");
+                        poz[i]=sc.nextInt();
+                    }
+                    
+                        EncEni(split,split2,poz);
+                        System.out.println("Zakodowane słowo: \033[31m"+wypTab(split)+"\033[0m\n");
+                        break;
+                
+                case 2: //deszyfrowanie
+                    System.out.println("Podaj słowo:\033[31m");
+                        word=sc.next();
+                    System.out.print("\033[0m");
+                        split=word.toCharArray();
+                    System.out.println("Podaj ilość rotorów:\033[31m");
+                        n=sc.nextInt();
+                    System.out.print("\033[0m");
+                    System.out.println("Podaj klucz:\033[31m");
+                        key=sc.next();
+                    System.out.print("\033[0m");
+                        split2=key.toCharArray();        
+                    int []poz2= new int[n];
+                    for(int i=0; i<n; i++){
+                        System.out.print("Podaj "+(i+1)+" rotor:");
+                        poz2[i]=sc.nextInt();
+                    }
+                        DecEni(split,split2,poz2);
+                        System.out.println("\nRozkodowane słowo: \033[31m"+wypTab(split)+"\033[0m\n");  
+                        break;
+            }
+        }while(option!=3);
+       
+        
+    }   
+}
